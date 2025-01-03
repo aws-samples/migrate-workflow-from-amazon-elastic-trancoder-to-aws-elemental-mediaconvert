@@ -3,6 +3,8 @@
 This package contains scripts that converts Amazon Elastic Transcoder preset and job settings to AWS
 Elemental MediaConvert prest and job settings.
 
+For more info see https://aws.amazon.com/blogs/media/how-to-migrate-workflows-from-amazon-elastic-transcoder-to-aws-elemental-mediaconvert/
+
 ## Prerequisites
 
 The followings are required to run the script:
