@@ -1,0 +1,16 @@
+{
+  "name": "@aws-samples/migrate-workflow-from-amazon-elastic-trancoder-to-aws-elemental-mediaconvert",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "jest"
+  },
+  "license": "MIT-0",
+  "description": "This package contains scripts that converts Amazon Elastic Transcoder preset and job settings to AWS Elemental MediaConvert prest and job settings.",
+  "dependencies": {
+    "@aws-sdk/client-elastic-transcoder": "^3.609.0",
+    "command-line-args": "^6.0.1",
+    "command-line-usage": "^7.0.3",
+    "jest": "^29.7.0",
+    "json-casing": "^1.2.10"
+  }
+}
