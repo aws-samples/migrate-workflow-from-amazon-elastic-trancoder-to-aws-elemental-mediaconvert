@@ -1,0 +1,17 @@
+{
+  "Id": "1351620000001-500060",
+  "Arn": "arn:aws:elastictranscoder:us-west-2:511591261676:preset/1351620000001-500060",
+  "Name": "System preset: MPEG-Dash Audio - 128k",
+  "Description": "System preset: MPEG-Dash Audio - 128k",
+  "Container": "fmp4",
+  "Audio": {
+    "Codec": "AAC",
+    "SampleRate": "48000",
+    "BitRate": "128",
+    "Channels": "2",
+    "CodecOptions": {
+      "Profile": "AAC-LC"
+    }
+  },
+  "Type": "System"
+}

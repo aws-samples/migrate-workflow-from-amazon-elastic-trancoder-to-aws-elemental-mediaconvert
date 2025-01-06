@@ -12,10 +12,8 @@ beforeAll(() => {
 
 describe('JobOutput()', () => {
   it('should add name modifier for HLS output group', () => {
-    global.presets = {'a': {}};
-
     const formats = ['HLSv3', 'HLSv4'];
-    const output = {presetId: 'a'};
+    const output = {presetId: '1351620000001-200055'};
 
     for (const format of formats) {
       const res = JobOutput(output, format);
@@ -24,45 +22,19 @@ describe('JobOutput()', () => {
   });
 
   it('should make container settings', () => {
-    global.presets = {'a': {}};
-    const output = {presetId: 'a'};
+    const output = {presetId: '1351620000001-200055'};
     const res = JobOutput(output, 'HLSv4');
     expect(res.containerSettings.container).toBe('M3U8');
   });
 
   it('should make audio descriptions', () => {
-    global.presets = {
-      'a': {
-        audio: {
-          codec: 'AAC',
-          codecOptions: {
-            profile: 'AAC-LC'
-          }
-        }
-      }
-    };
-
-    const output = {presetId: 'a'};
+    const output = {presetId: '1351620000001-200060'};
     const res = JobOutput(output, 'HLSv4');
     expect(res.audioDescriptions[0].codecSettings.codec).toBe('AAC');
   });
 
   it('should make video description', () => {
-    global.presets = addPath({
-      'a': {
-        video: {
-          codec: 'H.264',
-          maxWidth: "854",
-          maxHeight: "480",
-          codecOptions: {
-            profile: 'baseline',
-            colorSpaceConversionMode: "None"
-          }
-        }
-      }
-    }, []);
-
-    const output = {presetId: 'a'};
+    const output = {presetId: '1351620000001-200055'}; // Video-only preset: hls_video_400k.json
     const res = JobOutput(output);
     expect(res.videoDescription.codecSettings.codec).toBe('H_264');
   });
