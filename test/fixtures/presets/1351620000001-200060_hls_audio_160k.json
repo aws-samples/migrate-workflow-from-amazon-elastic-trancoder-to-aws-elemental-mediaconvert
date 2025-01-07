@@ -1,0 +1,17 @@
+{
+  "Id": "1351620000001-200060",
+  "Arn": "arn:aws:elastictranscoder:us-west-2:511591261676:preset/1351620000001-200060",
+  "Name": "System preset: HLS Audio - 160k",
+  "Description": "System Preset: HLS Audio 160 kilobits/second",
+  "Container": "ts",
+  "Audio": {
+      "Codec": "AAC",
+      "SampleRate": "44100",
+      "BitRate": "160",
+      "Channels": "2",
+      "CodecOptions": {
+          "Profile": "AAC-LC"
+      }
+  },
+  "Type": "System"
+}

@@ -29,16 +29,18 @@ describe('JobInput()', () => {
   });
 
   it('should make audio selector when outputs have audio', () => {
-    global.presets = {'a': {audio:{}}};
-
     const input = {key: 'a.mp4'};
-    const outputs = [{presetId: 'a'}];
+    const outputs = [{presetId: '1351620000001-200060'}]; // Audio-only preset: hls_audio_160k.json
     const job = {outputs};
     let res = JobInput(job, input);
     expect(res.audioSelectors).toBeDefined();
+  });
 
-    global.presets = {'a': {}};
-    res = JobInput(job, input);
+  it('should not make audio selector when outputs have no audio', () => {
+    const input = {key: 'a.mp4'};
+    const outputs = [{presetId: '1351620000001-200055'}]; // Video-only preset: hls_video_400k.json
+    const job = {outputs};
+    let res = JobInput(job, input);
     expect(res.audioSelectors).toBeNull();
   });
 
@@ -52,7 +54,7 @@ describe('JobInput()', () => {
 
     const outputs = [
       {
-        presetId: 'a',
+        presetId: '1351620000001-200055',
         captions: {
           captionFormats: [
             {

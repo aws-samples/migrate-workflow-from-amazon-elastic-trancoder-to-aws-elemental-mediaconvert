@@ -1,0 +1,96 @@
+{
+  "Id": "1351620000001-400010",
+  "Arn": "arn:aws:elastictranscoder:us-west-2:511591261676:preset/1351620000001-400010",
+  "Name": "System preset: Smooth 3M",
+  "Description": "System preset: Smooth 3M",
+  "Container": "fmp4",
+  "Audio": {
+    "Codec": "AAC",
+    "SampleRate": "44100",
+    "BitRate": "160",
+    "Channels": "2",
+    "CodecOptions": {
+      "Profile": "AAC-LC"
+    }
+  },
+  "Video": {
+    "Codec": "H.264",
+    "CodecOptions": {
+      "BufferSize": "17772",
+      "ColorSpaceConversionMode": "None",
+      "InterlacedMode": "Progressive",
+      "Level": "3.1",
+      "MaxBitRate": "2962",
+      "MaxReferenceFrames": "3",
+      "Profile": "high"
+    },
+    "KeyframesMaxDist": "60",
+    "FixedGOP": "true",
+    "BitRate": "2962",
+    "FrameRate": "30",
+    "MaxWidth": "1280",
+    "MaxHeight": "720",
+    "DisplayAspectRatio": "auto",
+    "SizingPolicy": "ShrinkToFit",
+    "PaddingPolicy": "NoPad",
+    "Watermarks": [
+      {
+        "Id": "TopLeft",
+        "MaxWidth": "10%",
+        "MaxHeight": "10%",
+        "SizingPolicy": "ShrinkToFit",
+        "HorizontalAlign": "Left",
+        "HorizontalOffset": "10%",
+        "VerticalAlign": "Top",
+        "VerticalOffset": "10%",
+        "Opacity": "100",
+        "Target": "Content"
+      },
+      {
+        "Id": "TopRight",
+        "MaxWidth": "10%",
+        "MaxHeight": "10%",
+        "SizingPolicy": "ShrinkToFit",
+        "HorizontalAlign": "Right",
+        "HorizontalOffset": "10%",
+        "VerticalAlign": "Top",
+        "VerticalOffset": "10%",
+        "Opacity": "100",
+        "Target": "Content"
+      },
+      {
+        "Id": "BottomLeft",
+        "MaxWidth": "10%",
+        "MaxHeight": "10%",
+        "SizingPolicy": "ShrinkToFit",
+        "HorizontalAlign": "Left",
+        "HorizontalOffset": "10%",
+        "VerticalAlign": "Bottom",
+        "VerticalOffset": "10%",
+        "Opacity": "100",
+        "Target": "Content"
+      },
+      {
+        "Id": "BottomRight",
+        "MaxWidth": "10%",
+        "MaxHeight": "10%",
+        "SizingPolicy": "ShrinkToFit",
+        "HorizontalAlign": "Right",
+        "HorizontalOffset": "10%",
+        "VerticalAlign": "Bottom",
+        "VerticalOffset": "10%",
+        "Opacity": "100",
+        "Target": "Content"
+      }
+    ]
+  },
+  "Thumbnails": {
+    "Format": "png",
+    "Interval": "300",
+    "MaxWidth": "192",
+    "MaxHeight": "108",
+    "SizingPolicy": "ShrinkToFit",
+    "PaddingPolicy": "NoPad"
+  },
+  "Type": "System"
+}

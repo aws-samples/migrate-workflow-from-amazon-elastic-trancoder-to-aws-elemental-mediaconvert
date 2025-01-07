@@ -20,11 +20,6 @@ describe('Job()', () => {
       }
     };
 
-    global.presets = addPath({
-      'avc-v1': {},
-      'avc-v2': {}
-    }, []);
-
     global.messages = [];
   });
 
@@ -51,8 +46,8 @@ describe('Job()', () => {
     const job = {
       inputs: [{}],
       outputs: [
-        {id: '1', presetId: 'avc-v1', key: 'a.mp4'},
-        {id: '2', presetId: 'avc-v2', key: 'b.mp4'}
+        {id: '1', presetId: '1351620000001-000010', key: 'a.mp4'},
+        {id: '2', presetId: '1351620000001-000001', key: 'b.mp4'}
       ]
     };
 
@@ -68,8 +63,8 @@ describe('Job()', () => {
     const job = {
       inputs: [{}],
       outputs: [
-        {id: '1', presetId: 'avc-v1', key: 'a.mp4'},
-        {id: '2', presetId: 'avc-v2', key: 'b.mp4'}
+        {id: '1', presetId: '1351620000001-200050', key: 'a.mp4'},
+        {id: '2', presetId: '1351620000001-200040', key: 'b.mp4'}
       ],
       playlists: [
         {
@@ -102,8 +97,8 @@ describe('Job()', () => {
     const job = {
       inputs: [{}],
       outputs: [
-        {id: '1', presetId: 'avc-v1', key: 'a.mp4'},
-        {id: '2', presetId: 'avc-v2', key: 'b.mp4'}
+        {id: '1', presetId: '1351620000001-400010', key: 'a.mp4'},
+        {id: '2', presetId: '1351620000001-400020', key: 'b.mp4'}
       ],
       playlists: [
         {
@@ -134,8 +129,8 @@ describe('Job()', () => {
     const job = {
       inputs: [{}],
       outputs: [
-        {id: '1', presetId: 'avc-v1', key: 'a.mp4'},
-        {id: '2', presetId: 'avc-v2', key: 'b.mp4'}
+        {id: '1', presetId: '1351620000001-500050', key: 'a.mp4'},
+        {id: '2', presetId: '1351620000001-500060', key: 'b.mp4'}
       ],
       playlists: [
         {
