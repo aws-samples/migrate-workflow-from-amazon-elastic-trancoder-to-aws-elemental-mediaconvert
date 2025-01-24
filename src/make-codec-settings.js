@@ -4,6 +4,7 @@
  */
 
 const { addErrorMessage, addInfoMessage, addWarnMessage } = require('./add-message');
+const { getPar } = require('./get-par');
 const removeEmpty = require('./remove-empty');
 
 /**
@@ -34,17 +35,6 @@ const framerateMap = new Map([
   ['29.97', {framerateNumerator:30000, framerateDenominator:1001}],
   ['30',    {framerateNumerator:30,    framerateDenominator:1}],
   ['60',    {framerateNumerator:60,    framerateDenominator:1}],
-]);
-
-/**
- * Maps Elastic Transcoder video aspect ration to MediaConvert video pixel aspect ratio.
- */
-const aspectRatioMap = new Map([
-  ['auto', null],
-  ['1:1',  {parNumerator: 1,  parDenominator: 1}],
-  ['4:3',  {parNumerator: 4,  parDenominator: 3}],
-  ['3:2',  {parNumerator: 3,  parDenominator: 2}],
-  // ['16:9', {parNumerator: 40, parDenominator: 33}]
 ]);
 
 /**
@@ -170,23 +160,7 @@ function makeCodecSettings(videoParams) {
   let fr = framerateMap.get(videoParams.frameRate);
 
   // Pixel aspect ratio
-  let par = videoParams.displayAspectRatio ?
-    aspectRatioMap.get(videoParams.displayAspectRatio) :
-    aspectRatioMap.get(videoParams.aspectRatio);
-
-  if (!par && videoParams.displayAspectRatio && videoParams.displayAspectRatio !== 'auto') {
-    addWarnMessage(
-      [...videoParams._path, 'displayAspectRatio'],
-      `Display aspect ratio ${videoParams.displayAspectRatio} is not used.`
-    );
-  }
-
-  if (!par && videoParams.aspectRatio && videoParams.aspectRatio !== 'auto') {
-    addWarnMessage(
-      [...videoParams._path, 'aspectRatio'],
-      `Aspect ratio ${videoParams.aspectRatio} is not used.`
-    );
-  }
+  let par = getPar(videoParams);
 
   // ETS FixedGOP value as boolean.
   let fixedGOP = videoParams.fixedGOP === 'true';
