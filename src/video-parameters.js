@@ -18,15 +18,17 @@ function VideoParameters(videoParams) {
     return null;
   }
 
-  const resolution = getResolution(videoParams);
+  const maxWidth  = parseInt(videoParams.maxWidth);
+  const maxHeight = parseInt(videoParams.maxHeight);
+  const resolution = getResolution(videoParams.resolution);
 
   // MediaConvert color corrector object.
   let colorCorrector = makeColorCorrector(videoParams.codecOptions.colorSpaceConversionMode);
 
   return {
     codecSettings: makeCodecSettings(videoParams),
-    width: resolution[0],
-    height: resolution[1],
+    width:  (!isNaN(maxWidth) || !isNaN(maxHeight)) ? maxWidth  : resolution?.width,
+    height: (!isNaN(maxWidth) || !isNaN(maxHeight)) ? maxHeight : resolution?.height,
     scalingBehavior: SizingPolicy(videoParams),
     videoPreprocessors: colorCorrector ? {colorCorrector} : null
   };

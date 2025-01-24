@@ -6,26 +6,21 @@
 /**
  * Gets video width and height from Elastic Transcoder video settings.
  *
- * @param {object} videoParams Elastic Transcoder video parameters object.
- * @return {number[]} An array of integers denoting [width, height]. If resolution is auto, both
- * width and height will be null.
+ * @param {string} resolution Elastic Transcoder video resolution setting.
+ * @return {object} An object with two properties: width and height. If resolutions is auto or not
+ * defined, undefined is returned.
  */
-function getResolution(videoParams) {
-  let res = [null, null];
-
-  if (videoParams.maxWidth || videoParams.maxHeight) {
-    res[0] = videoParams.maxWidth  === 'auto' ? null : parseInt(videoParams.maxWidth);
-    res[1] = videoParams.maxHeight === 'auto' ? null : parseInt(videoParams.maxHeight);
-  }
-  else if (videoParams.resolution) {
-    if (videoParams.resolution !== 'auto') {
-      let parts = videoParams.resolution.split('x');
-      res[0] = parseInt(parts[0]);
-      res[1] = parseInt(parts[1]);
-    }
+function getResolution(resolution) {
+  if (typeof resolution !== 'string' || resolution === 'auto' || !resolution.match(/^\d+x\d+$/)) {
+    return;
   }
 
-  return res;
+  const parts = resolution.split('x');
+
+  return {
+    width:  parseInt(parts[0]),
+    height: parseInt(parts[1])
+  }
 }
 
 module.exports = getResolution;
