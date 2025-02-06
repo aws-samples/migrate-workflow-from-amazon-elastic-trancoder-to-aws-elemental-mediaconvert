@@ -12,7 +12,7 @@ const containerMap = new Map([
   ['flac', 'RAW' ],
   ['flv',  'F4V' ],
   ['fmp4', null  ],
-  ['gif',  null  ],
+  ['gif',  'GIF' ],
   ['mp2',  'RAW' ],
   ['mp3',  'RAW' ],
   ['mp4',  'MP4' ],

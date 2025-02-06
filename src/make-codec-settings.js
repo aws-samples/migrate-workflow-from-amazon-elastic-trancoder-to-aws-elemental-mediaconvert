@@ -8,14 +8,10 @@ const { getPar } = require('./get-par');
 const removeEmpty = require('./remove-empty');
 
 /**
- * Video codecs unsupported by MediaConvert.
- */
-const unsupportedCodecs = new Set(['gif']);
-
-/**
  * Maps Elastic Transcoder video codec to MediaConvert video codec.
  */
 const codecMap = new Map([
+  ['gif',   'GIF'],
   ['H.264', 'H_264'],
   ['mpeg2', 'MPEG2'],
   ['vp8',   'VP8'],
@@ -93,15 +89,21 @@ function makeCodecSettings(videoParams) {
   let codec = videoParams.codec;
 
   // ETS codec profile
-  let profile = videoParams.codecOptions.profile;
+  let profile = videoParams.codecOptions?.profile;
 
   // ETS codec level
-  let level = videoParams.codecOptions.level;
+  let level = videoParams.codecOptions?.level;
 
-  if (unsupportedCodecs.has(codec)) {
-    addErrorMessage(
-      [...videoParams._path, 'codec'],
-      `MediaConvert does not support ${codec} video codec.`
+  // Elastic Transcoder bit rate
+  let bitRate = videoParams.bitRate;
+
+  // Elastic Transcoder max bit rate
+  let maxBitRate = videoParams.codecOptions?.maxBitRate;
+
+  if (videoParams.maxFrameRate) {
+    addWarnMessage(
+      [...videoParams._path, 'maxFrameRate'],
+      'MediaConvert does not support video max frame rate. This setting is ignored.'
     );
   }
 
@@ -120,6 +122,20 @@ function makeCodecSettings(videoParams) {
     );
   }
 
+  if (codec === 'gif' && bitRate && bitRate !== 'auto') {
+    addWarnMessage(
+      [...videoParams._path, 'bitRate'],
+      'MediaConvert does not support GIF bitrate. Video bitrate is ignored.'
+    );
+  }
+
+  if (codec === 'gif' && videoParams.codecOptions?.loopCount) {
+    addWarnMessage(
+      [...videoParams._path, 'codecOptions', 'loopCount'],
+      'MediaConvert does not support GIF loop count. This setting is ignored.'
+    );
+  }
+
   // The result generic MediaConvert CodecSettings object.
   let res = {
     codec: codecMap.get(codec)
@@ -127,12 +143,6 @@ function makeCodecSettings(videoParams) {
 
   // MediaConvert rate control mode.
   let rateControlMode = getVideoRateControlMode(videoParams);
-
-  // Elastic Transcoder bit rate
-  let bitRate = videoParams.bitRate;
-
-  // Elastic Transcoder max bit rate
-  let maxBitRate = videoParams.codecOptions?.maxBitRate;
 
   if (rateControlMode === 'VBR' && (!bitRate || bitRate === 'auto')) {
     addWarnMessage(
@@ -151,7 +161,7 @@ function makeCodecSettings(videoParams) {
   }
 
   // MediaConvert bitrate
-  let bitrate = rateControlMode === 'QVBR' ? null : parseInt(bitRate) * 1000;
+  let bitrate = (codec === 'gif' || rateControlMode === 'QVBR') ? null : parseInt(bitRate) * 1000;
 
   // MediaConvert max bitrate
   let maxBitrate = rateControlMode === 'CBR' ? null : parseInt(maxBitRate) * 1000;
@@ -178,18 +188,22 @@ function makeCodecSettings(videoParams) {
     parNumerator: par ? par.parNumerator : null,
     parDenominator: par ? par.parDenominator : null,
     codecProfile: codec === 'H.264' ? profile.toUpperCase() : codec === 'mpeg2' ?
-      chromaMap.get(videoParams.codecOptions.chromaSubsampling) : null,
+      chromaMap.get(videoParams.codecOptions?.chromaSubsampling) : null,
     codecLevel:
       (codec === 'H.264' && level && level !== '1b') ? `LEVEL_${level.replace('.', '_')}` : null,
     entropyEncoding: profile === 'baseline' ? 'CAVLC' : null,
-    numberReferenceFrames: parseInt(videoParams.codecOptions.maxReferenceFrames),
+    numberReferenceFrames: parseInt(videoParams.codecOptions?.maxReferenceFrames),
     numberBFramesBetweenReferenceFrames: profile === 'baseline' ? 0 : null,
     maxBitrate,
-    hrdBufferSize: parseInt(videoParams.codecOptions.bufferSize),
-    interlaceMode: interlaceModeMap.get(videoParams.codecOptions.interlacedMode)
+    hrdBufferSize: parseInt(videoParams.codecOptions?.bufferSize),
+    interlaceMode: interlaceModeMap.get(videoParams.codecOptions?.interlacedMode)
   }
 
   switch (videoParams.codec) {
+    case 'gif':
+      res.gifSettings = codecSettings;
+      break;
+
     case 'H.264':
       res.h264Settings = codecSettings;
       break;

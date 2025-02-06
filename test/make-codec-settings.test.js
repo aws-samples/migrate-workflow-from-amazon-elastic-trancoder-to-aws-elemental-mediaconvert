@@ -183,3 +183,56 @@ describe('H.264', () => {
     expect(res.h264Settings.codecLevel).toBe('LEVEL_3_1');
   });
 });
+
+describe('GIF', () => {
+  it('should convert gif settings', () => {
+    const videoParams = {
+      codec: 'gif',
+      frameRate: '15'
+    };
+
+    const res = makeCodecSettings(videoParams);
+
+    expect(res.codec).toBe('GIF');
+    expect(res.gifSettings).toBeDefined();
+    expect(res.gifSettings.framerateControl).toBe('SPECIFIED');
+    expect(res.gifSettings.framerateNumerator).toBe(15);
+    expect(res.gifSettings.framerateDenominator).toBe(1);
+  });
+
+  it('should ignore bitrate', () => {
+    const tests = ['400', undefined];
+
+    for (const test of tests) {
+      const videoParams = {
+        codec: 'gif',
+        bitRate: test,
+        _path: []
+      };
+
+      const res = makeCodecSettings(videoParams);
+
+      expect(res.gifSettings.bitrate).toBeUndefined();
+
+      test && expect(global.messages.find(
+        message => message.message.startsWith('MediaConvert does not support GIF bitrate')
+      )).toBeDefined();
+    }
+  });
+
+  it('should produce warning message for loop count', () => {
+    const videoParams = {
+      codec: 'gif',
+      codecOptions: {
+        loopCount: '1'
+      },
+      _path: []
+    };
+
+    const res = makeCodecSettings(videoParams);
+
+    expect(global.messages.find(
+      message => message.message.startsWith('MediaConvert does not support GIF loop count')
+    )).toBeDefined();
+  });
+});
