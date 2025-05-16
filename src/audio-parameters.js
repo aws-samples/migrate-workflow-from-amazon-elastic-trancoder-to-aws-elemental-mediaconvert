@@ -4,6 +4,7 @@
  */
 
 const { addWarnMessage } = require('./add-message');
+const removeEmpty = require('./remove-empty');
 
 /**
  * Maps Elastic Transcoder audio codec to MediaConvert audio codec.
@@ -35,6 +36,11 @@ const aacProfileMap = new Map([
 ]);
 
 /**
+ * The list of MediaConvert audio codecs that has the bitrate setting.
+ */
+const emcBitrateAllowed = new Set(['AAC', 'MP2', 'MP3']);
+
+/**
  * Converts Elastic Transcoder a preset audio parameters object to a MediaConvert AudioDescription
  * object.
  *
@@ -47,14 +53,24 @@ function AudioParameters(audioParams) {
   let codec = audioParams.codec;
   let packingMode = audioParams.audioPackingMode;
 
+  // MediaConvert audio codec
+  let emcCodec = codecMap.get(codec);
+
   if (packingMode === 'OneChannelPerTrack' || packingMode === 'OneChannelPerTrackWithMosTo8Tracks')
   {
     addWarnMessage(
-      [...audioParams._path, 'audioPackingMode']
+      [...audioParams._path, 'audioPackingMode'],
       `The converter has not retained ${packingMode} audio packing mode. ` +
       'For MediaConvert audio mixing features, see ' +
       'https://docs.aws.amazon.com/mediaconvert/latest/ug/more-about-audio-tracks-selectors.html ' +
       'https://docs.aws.amazon.com/mediaconvert/latest/ug/audio-descriptions.html'
+    );
+  }
+
+  if (audioParams.bitRate && !emcBitrateAllowed.has(emcCodec)) {
+    addWarnMessage(
+      [...audioParams._path, 'bitRate'],
+      `MediaConvert does not support ${codec} bitrate. This settings is ignored.`
     );
   }
 
@@ -63,23 +79,23 @@ function AudioParameters(audioParams) {
   // signed:   ETS only supports signed. EMF always produce signed WAV output.
 
   // Return MediaConvert AudioDescription object.
-  return {
+  return removeEmpty({
     codecSettings: {
-      codec: codecMap.get(codec),
+      codec: emcCodec,
 
       // Codec specific settings (e.g., AacSettings) object.
-      [`${codecMap.get(codec).toLocaleLowerCase()}Settings`]: {
+      [`${emcCodec.toLocaleLowerCase()}Settings`]: {
         sampleRate: parseInt(audioParams.sampleRate),
-        bitrate: parseInt(audioParams.bitRate) * 1000,
+        bitrate: emcBitrateAllowed.has(emcCodec) ? parseInt(audioParams.bitRate) * 1000 : null,
         channels: codec === 'AAC' ? null : parseInt(audioParams.channels),
         codingMode: codec === 'AAC' ? aacChannelsMap.get(audioParams.channels) : null,
-        codecProfile: aacProfileMap.get(audioParams.codecOptions.profile),
-        bitDepth: parseInt(audioParams.codecOptions.bitDepth)
+        codecProfile: aacProfileMap.get(audioParams.codecOptions?.profile),
+        bitDepth: parseInt(audioParams.codecOptions?.bitDepth)
       }
     },
 
     audioSourceName: 'Audio Selector 1'
-  };
+  });
 }
 
 module.exports = AudioParameters;

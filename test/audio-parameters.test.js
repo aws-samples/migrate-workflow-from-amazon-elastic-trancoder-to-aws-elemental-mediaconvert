@@ -4,7 +4,6 @@
  */
 
 const AudioParameters = require('../src/audio-parameters');
-const removeEmpty = require('../src/remove-empty');
 
 describe('AudioParameters()', () => {
   test('Simple AAC conversion', () => {
@@ -33,8 +32,34 @@ describe('AudioParameters()', () => {
       audioSourceName: "Audio Selector 1"
     };
 
-    const res = removeEmpty(AudioParameters(audioParams));
+    const res = AudioParameters(audioParams);
 
     expect(res).toEqual(expected);
+  });
+
+  test('Vorbis conversion', () => {
+    const audioParams = {
+      "_path": [],
+      "bitRate": "160",
+      "channels": "2",
+      "codec": "vorbis",
+      "sampleRate": "44100"
+    };
+
+    const expected = {
+      codecSettings: {
+        codec: "VORBIS",
+        vorbisSettings: {
+          sampleRate: 44100,
+          channels: 2
+        }
+      },
+      audioSourceName: "Audio Selector 1"
+    };
+
+    const res = AudioParameters(audioParams);
+
+    expect(res).toEqual(expected);
+    expect(global.messages[0].message).toMatch(/MediaConvert does not support vorbis bitrate./);
   });
 });
