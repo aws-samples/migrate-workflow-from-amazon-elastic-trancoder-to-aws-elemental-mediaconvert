@@ -11,6 +11,10 @@ describe('JobInput()', () => {
     global.args = {};
     global.pipeline = {inputBucket: 'inputs'};
     global.messages = [];
+    global.presets = {
+      '1351620000001-200060': require('./fixtures/presets/1351620000001-200060_hls_audio_160k.json'),
+      '1351620000001-200055': require('./fixtures/presets/1351620000001-200055_hls_video_400k.json')
+    };
   });
 
   it('should make fileInput S3 key', () => {

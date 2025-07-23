@@ -4,7 +4,206 @@
  */
 
 const addPath = require("../src/add-path");
-const makeCodecSettings = require("../src/make-codec-settings");
+const {getHrdBufferSize, makeCodecSettings} = require("../src/make-codec-settings");
+
+describe('getHrdBufferSize()', () => {
+  beforeEach(() => {
+    global.messages = [];
+  });
+
+  it('should return undefined when buffer size and max bitrate are undefined', () => {
+    const videoParams = addPath({
+      codec: 'H.264',
+      codecOptions: {
+        profile: 'baseline'
+      }
+    }, []);
+
+    expect(getHrdBufferSize(videoParams)).toBeUndefined()
+  });
+
+  it('should return original buffer size when it is defined', () => {
+    const videoParams = addPath({
+      codec: 'H.264',
+      codecOptions: {
+        profile: 'baseline',
+        bufferSize: '10'
+      }
+    }, []);
+
+    expect(getHrdBufferSize(videoParams)).toBe(10000)
+  });
+
+  it('should cap buffer size', () => {
+    const videoParams = addPath({
+      codec: 'H.264',
+      codecOptions: {
+        profile: 'baseline',
+        level: '1',
+        bufferSize: '211'
+      }
+    }, []);
+
+    expect(getHrdBufferSize(videoParams)).toBe(210000);
+    expect(global.messages.find(
+      message => message.message.includes('video buffer size is larger than MediaConvert maximum ')
+    )).toBeDefined();
+  });
+
+  it('should return 10x max bitrate', () => {
+    const videoParams = addPath({
+      codec: 'H.264',
+      codecOptions: {
+        profile: 'baseline',
+        level: '1',
+        maxBitRate: '10'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(100000);
+  });
+
+  it('should cap 10x max bitrate', () => {
+    const videoParams = addPath({
+      codec: 'H.264',
+      codecOptions: {
+        profile: 'baseline',
+        level: '1',
+        maxBitRate: '1000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(210000);
+  });
+
+  it('should return undefined for gif', () => {
+    const videoParams = addPath({
+      codec: 'gif'
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBeUndefined();
+  });
+
+  it('should return original buffer size when it is defined for VP8', () => {
+    const videoParams = addPath({
+      codec: 'vp8',
+      codecOptions: {
+        profile: '0',
+        bufferSize: '10'
+      }
+    }, []);
+
+    expect(getHrdBufferSize(videoParams)).toBe(10000)
+  });
+
+  it('should cap buffer size for VP8', () => {
+    const videoParams = addPath({
+      codec: 'vp8',
+      codecOptions: {
+        profile: '0',
+        bufferSize: '50000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(47185920);
+  });
+
+  it('should cap max bitrate for VP8', () => {
+    const videoParams = addPath({
+      codec: 'vp8',
+      codecOptions: {
+        profile: '0',
+        maxBitRate: '50000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(47185920);
+  });
+
+  it('should return original buffer size when it is defined for VP9', () => {
+    const videoParams = addPath({
+      codec: 'vp9',
+      codecOptions: {
+        profile: '0',
+        bufferSize: '10'
+      }
+    }, []);
+
+    expect(getHrdBufferSize(videoParams)).toBe(10000)
+  });
+
+  it('should cap buffer size for VP9', () => {
+    const videoParams = addPath({
+      codec: 'vp9',
+      codecOptions: {
+        profile: '0',
+        bufferSize: '50000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(47185920);
+  });
+
+  it('should cap max bitrate for VP9', () => {
+    const videoParams = addPath({
+      codec: 'vp9',
+      codecOptions: {
+        profile: '0',
+        maxBitRate: '50000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(47185920);
+  });
+
+  it('should return original buffer size when it is defined for MPEG2', () => {
+    const videoParams = addPath({
+      codec: 'mpeg2',
+      codecOptions: {
+        bufferSize: '10'
+      }
+    }, []);
+
+    expect(getHrdBufferSize(videoParams)).toBe(10000)
+  });
+
+  it('should cap buffer size for MPEG2 yuv420p', () => {
+    const videoParams = addPath({
+      codec: 'mpeg2',
+      codecOptions: {
+        chromaSubsampling: 'yuv420p',
+        bufferSize: '10000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(9781248);
+  });
+
+  it('should cap max bitrate for MPEG2 yuv420p', () => {
+    const videoParams = addPath({
+      codec: 'mpeg2',
+      codecOptions: {
+        chromaSubsampling: 'yuv420p',
+        maxBitRate: '10000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(9781248);
+  });
+
+  it('should cap buffer size for MPEG2 yuv422p', () => {
+    const videoParams = addPath({
+      codec: 'mpeg2',
+      codecOptions: {
+        chromaSubsampling: 'yuv422p',
+        bufferSize: '50000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(47185920);
+  });
+
+  it('should cap max bitrate for MPEG2 yuv422p', () => {
+    const videoParams = addPath({
+      codec: 'mpeg2',
+      codecOptions: {
+        chromaSubsampling: 'yuv422p',
+        maxBitRate: '50000'
+      }
+    }, []);
+    expect(getHrdBufferSize(videoParams)).toBe(47185920);
+  });
+});
 
 describe('makeCodecSettings()', () => {
   beforeEach(() => {
