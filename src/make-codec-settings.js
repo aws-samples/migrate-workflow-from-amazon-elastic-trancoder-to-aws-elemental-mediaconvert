@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT-0
  */
 
-const { addErrorMessage, addInfoMessage, addWarnMessage } = require('./add-message');
+const { addWarnMessage } = require('./add-message');
 const { getPar } = require('./get-par');
 const removeEmpty = require('./remove-empty');
 
@@ -54,6 +54,103 @@ const chromaMap = new Map([
 ]);
 
 /**
+ * MediaConvert H.264 maximum HRD Buffer Size profile and level.
+ */
+const h264MaxHrdBufferSizeMap = new Map([
+  ['HIGH', new Map([
+    ['LEVEL_1',   262500],
+    ['LEVEL_1_1', 750000],
+    ['LEVEL_1_2', 1500000],
+    ['LEVEL_1_3', 3000000],
+    ['LEVEL_2',   3000000],
+    ['LEVEL_2_1', 6000000],
+    ['LEVEL_2_2', 6000000],
+    ['LEVEL_3',   15000000],
+    ['LEVEL_3_1', 21000000],
+    ['LEVEL_3_2', 30000000],
+    ['LEVEL_4',   37500000],
+    ['LEVEL_4_1', 93750000],
+  ])],
+  ['HIGH_10BIT', new Map([
+    ['LEVEL_1',   630000],
+    ['LEVEL_1_1', 1800000],
+    ['LEVEL_1_2', 3600000],
+    ['LEVEL_1_3', 7200000],
+    ['LEVEL_2',   7200000],
+    ['LEVEL_2_1', 14400000],
+    ['LEVEL_2_2', 14400000],
+    ['LEVEL_3',   36000000],
+    ['LEVEL_3_1', 50400000],
+    ['LEVEL_3_2', 72000000],
+    ['LEVEL_4',   90000000],
+    ['LEVEL_4_1', 225000000],
+  ])],
+  ['HIGH_422', new Map([
+    ['LEVEL_1',   840000],
+    ['LEVEL_1_1', 2400000],
+    ['LEVEL_1_2', 4800000],
+    ['LEVEL_1_3', 9600000],
+    ['LEVEL_2',   9600000],
+    ['LEVEL_2_1', 19200000],
+    ['LEVEL_2_2', 19200000],
+    ['LEVEL_3',   48000000],
+    ['LEVEL_3_1', 67200000],
+    ['LEVEL_3_2', 96000000],
+    ['LEVEL_4',   120000000],
+    ['LEVEL_4_1', 300000000],
+  ])],
+  ['HIGH_422_10BIT', new Map([
+    ['LEVEL_1',   840000],
+    ['LEVEL_1_1', 2400000],
+    ['LEVEL_1_2', 4800000],
+    ['LEVEL_1_3', 9600000],
+    ['LEVEL_2',   9600000],
+    ['LEVEL_2_1', 19200000],
+    ['LEVEL_2_2', 19200000],
+    ['LEVEL_3',   48000000],
+    ['LEVEL_3_1', 67200000],
+    ['LEVEL_3_2', 96000000],
+    ['LEVEL_4',   120000000],
+    ['LEVEL_4_1', 300000000],
+  ])],
+  ['MAIN', new Map([
+    ['LEVEL_1',   210000],
+    ['LEVEL_1_1', 600000],
+    ['LEVEL_1_2', 1200000],
+    ['LEVEL_1_3', 2400000],
+    ['LEVEL_2',   2400000],
+    ['LEVEL_2_1', 4800000],
+    ['LEVEL_2_2', 4800000],
+    ['LEVEL_3',   12000000],
+    ['LEVEL_3_1', 16800000],
+    ['LEVEL_3_2', 24000000],
+    ['LEVEL_4',   30000000],
+    ['LEVEL_4_1', 75000000],
+  ])],
+  ['BASELINE', new Map([
+    ['LEVEL_1',   210000],
+    ['LEVEL_1_1', 600000],
+    ['LEVEL_1_2', 1200000],
+    ['LEVEL_1_3', 2400000],
+    ['LEVEL_2',   2400000],
+    ['LEVEL_2_1', 4800000],
+    ['LEVEL_2_2', 4800000],
+    ['LEVEL_3',   12000000],
+    ['LEVEL_3_1', 16800000],
+    ['LEVEL_3_2', 24000000],
+    ['LEVEL_4',   30000000],
+    ['LEVEL_4_1', 75000000],
+  ])]
+]);
+
+const mpeg2MaxHrdBufferSizeMap = new Map([
+  ['MAIN',        9781248],
+  ['PROFILE_422', 47185920]
+]);
+
+const vp8MaxHrdBufferSize = 47185920;
+
+/**
  * Gets MediaConvert video rate control mode based on Elastic Transcoder video settings.
  *
  * @param {string} videoParams The Elastic Transcoder video parameters object.
@@ -75,6 +172,76 @@ function getVideoRateControlMode(videoParams) {
     case 'vp8':
     case 'vp9':
       return 'VBR';
+  }
+}
+
+/**
+ * Gets MediaConvert codec profile from Elastic Transcoder video params.
+ *
+ * @param {object} videoParams The Elastic Transcoder video params object.
+ * @return {string} The MediaConvert codec profile or null.
+ */
+function getCodecProfile(videoParams) {
+  const codec = videoParams.codec;
+  const profile = videoParams.codecOptions?.profile;
+  return codec === 'H.264' ? profile.toUpperCase() : codec === 'mpeg2' ?
+    chromaMap.get(videoParams.codecOptions?.chromaSubsampling) : null;
+}
+
+/**
+ * Gets MediaConvert codec level from Elastic Transcoder video params.
+ *
+ * @param {object} videoParams The Elastic Transcoder video params object.
+ * @return {string} The MediaConvert codec level or null.
+ */
+function getCodecLevel(videoParams) {
+  const codec = videoParams.codec;
+  const level = videoParams.codecOptions?.level;
+  return (codec === 'H.264' && level && level !== '1b') ? `LEVEL_${level.replace('.', '_')}` : null;
+}
+
+/**
+ * Gets MediaConvert HRD Buffer Size from Elastic Transcoder video params.
+ *
+ * @param {object} videoParams The Elastic Transcoder video params object.
+ * @return {number} The HRD Buffer Size or undefined.
+ */
+function getHrdBufferSize(videoParams) {
+  // Elastic Transcoder bufferSize
+  const bufferSize = parseInt(videoParams.codecOptions?.bufferSize) * 1000;
+  const maxBitrate = parseInt(videoParams.codecOptions?.maxBitRate) * 1000;
+
+  // MediaConvert video codec, profile, level
+  const codec = codecMap.get(videoParams.codec);
+  const profile = getCodecProfile(videoParams);
+  const level = getCodecLevel(videoParams);
+
+  // MediaConvert max hrdBufferSize
+  const maxHrdBufferSize = {
+    'H_264': (p, l) => h264MaxHrdBufferSizeMap.get(p).get(l),
+    'VP8':   () => vp8MaxHrdBufferSize,
+    'VP9':   () => vp8MaxHrdBufferSize,
+    'MPEG2': (p) => mpeg2MaxHrdBufferSizeMap.get(p),
+    'GIF':   () => undefined
+  }[codec](profile, level);
+
+  if (bufferSize) {
+    if (maxHrdBufferSize && (bufferSize > maxHrdBufferSize)) {
+      addWarnMessage(
+        [...videoParams._path, 'bufferSize'],
+        `${videoParams.codec} video buffer size is larger than MediaConvert maximum hrdBufferSize. ` +
+        'Using the maximum value.'
+      );
+
+      return maxHrdBufferSize;
+    }
+
+    return bufferSize;
+  }
+
+  if (maxBitrate) {
+    const hrdBufferSize = maxBitrate * 10;
+    return maxHrdBufferSize ? Math.min(maxHrdBufferSize, hrdBufferSize) : hrdBufferSize;
   }
 }
 
@@ -187,15 +354,13 @@ function makeCodecSettings(videoParams) {
     parControl: par ? 'SPECIFIED' : null,
     parNumerator: par ? par.parNumerator : null,
     parDenominator: par ? par.parDenominator : null,
-    codecProfile: codec === 'H.264' ? profile.toUpperCase() : codec === 'mpeg2' ?
-      chromaMap.get(videoParams.codecOptions?.chromaSubsampling) : null,
-    codecLevel:
-      (codec === 'H.264' && level && level !== '1b') ? `LEVEL_${level.replace('.', '_')}` : null,
+    codecProfile: getCodecProfile(videoParams),
+    codecLevel: getCodecLevel(videoParams),
     entropyEncoding: profile === 'baseline' ? 'CAVLC' : null,
     numberReferenceFrames: parseInt(videoParams.codecOptions?.maxReferenceFrames),
     numberBFramesBetweenReferenceFrames: profile === 'baseline' ? 0 : null,
     maxBitrate,
-    hrdBufferSize: parseInt(videoParams.codecOptions?.bufferSize),
+    hrdBufferSize: getHrdBufferSize(videoParams),
     interlaceMode: interlaceModeMap.get(videoParams.codecOptions?.interlacedMode)
   }
 
@@ -224,4 +389,7 @@ function makeCodecSettings(videoParams) {
   return removeEmpty(res);
 }
 
-module.exports = makeCodecSettings;
+module.exports = {
+  getHrdBufferSize,
+  makeCodecSettings
+};

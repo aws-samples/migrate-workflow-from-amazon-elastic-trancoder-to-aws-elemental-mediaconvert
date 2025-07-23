@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT-0
  */
 
-const makeCodecSettings = require('./make-codec-settings');
+const {makeCodecSettings} = require('./make-codec-settings');
 const makeColorCorrector = require('./make-color-corrector');
 const getResolution = require('./get-resolution');
 const SizingPolicy = require('./sizing-policy');
