@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT-0
  */
 
-const { addWarnMessage } = require('./add-message');
+const { addInfoMessage, addWarnMessage } = require('./add-message');
 const { getPar } = require('./get-par');
 const removeEmpty = require('./remove-empty');
 
@@ -240,6 +240,13 @@ function getHrdBufferSize(videoParams) {
   }
 
   if (maxBitrate) {
+    addWarnMessage(
+      [...videoParams._path, 'bufferSize'],
+      `${videoParams.codec} video buffer size is not specified. Using 10 times the value of ` +
+      'maxBitRate (or the max of MediaConvert value) for hrdBufferSize to mimic the behavior of ' +
+      'Elastic Transcoder.'
+    );
+
     const hrdBufferSize = maxBitrate * 10;
     return maxHrdBufferSize ? Math.min(maxHrdBufferSize, hrdBufferSize) : hrdBufferSize;
   }

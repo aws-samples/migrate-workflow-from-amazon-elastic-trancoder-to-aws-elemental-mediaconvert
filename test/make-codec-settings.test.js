@@ -60,6 +60,9 @@ describe('getHrdBufferSize()', () => {
       }
     }, []);
     expect(getHrdBufferSize(videoParams)).toBe(100000);
+    expect(global.messages.find(
+      message => message.message.includes('Using 10 times the value of maxBitRate')
+    )).toBeDefined();
   });
 
   it('should cap 10x max bitrate', () => {
@@ -72,6 +75,9 @@ describe('getHrdBufferSize()', () => {
       }
     }, []);
     expect(getHrdBufferSize(videoParams)).toBe(210000);
+    expect(global.messages.find(
+      message => message.message.includes('Using 10 times the value of maxBitRate')
+    )).toBeDefined();
   });
 
   it('should return undefined for gif', () => {
@@ -113,6 +119,9 @@ describe('getHrdBufferSize()', () => {
       }
     }, []);
     expect(getHrdBufferSize(videoParams)).toBe(47185920);
+    expect(global.messages.find(
+      message => message.message.includes('Using 10 times the value of maxBitRate')
+    )).toBeDefined();
   });
 
   it('should return original buffer size when it is defined for VP9', () => {
@@ -147,6 +156,9 @@ describe('getHrdBufferSize()', () => {
       }
     }, []);
     expect(getHrdBufferSize(videoParams)).toBe(47185920);
+    expect(global.messages.find(
+      message => message.message.includes('Using 10 times the value of maxBitRate')
+    )).toBeDefined();
   });
 
   it('should return original buffer size when it is defined for MPEG2', () => {
@@ -180,6 +192,9 @@ describe('getHrdBufferSize()', () => {
       }
     }, []);
     expect(getHrdBufferSize(videoParams)).toBe(9781248);
+    expect(global.messages.find(
+      message => message.message.includes('Using 10 times the value of maxBitRate')
+    )).toBeDefined();
   });
 
   it('should cap buffer size for MPEG2 yuv422p', () => {
@@ -202,6 +217,9 @@ describe('getHrdBufferSize()', () => {
       }
     }, []);
     expect(getHrdBufferSize(videoParams)).toBe(47185920);
+    expect(global.messages.find(
+      message => message.message.includes('Using 10 times the value of maxBitRate')
+    )).toBeDefined();
   });
 });
 
