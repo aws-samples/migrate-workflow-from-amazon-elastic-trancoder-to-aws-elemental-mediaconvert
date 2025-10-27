@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT-0
  */
 
-const AudioParameters = require('./audio-parameters');
+const { AudioParameters } = require('./audio-parameters');
 const { makeContainerSettings } = require('./make-container-settings');
 const Thumbnails = require('./thumbnails');
 const VideoParameters = require('./video-parameters');

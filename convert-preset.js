@@ -47,6 +47,12 @@ const argDefinitions = [
     alias: 'v',
     type: Boolean,
     description: 'Output verbose debug messages to stderr.'
+  },
+  {
+    name: 'insert-defaults',
+    type: Boolean,
+    description: 'Optional. Insert default values for missing required settings. ' +
+      'The default is false (don\'t insert).'
   }
 ];
 
