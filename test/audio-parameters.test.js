@@ -6,6 +6,7 @@
 const addPath = require("../src/add-path");
 const {
   AudioParameters,
+  convertAacProfile,
   convertChannels,
   convertSampleRate,
   makeCodingMode
@@ -212,5 +213,61 @@ describe('makeCodingMode()', () => {
 
     audioParams = {codec: 'AAC', channels: '2'};
     expect(makeCodingMode(audioParams)).toBe('CODING_MODE_2_0');
+  });
+});
+
+describe('convertAacProfile()', () => {
+  beforeEach(() => {
+    global.messages = [];
+  });
+
+  it('should return undefined if codec is not AAC', () => {
+    const tests = ['flac', 'mp2', 'mp3', 'pcm', 'vorbis'];
+    for (const test of tests) {
+      const audioParams = {
+        codec: test
+      };
+      expect(convertAacProfile(audioParams)).toBeUndefined();
+    }
+  });
+
+  it('should return LC if profile is auto and insert-defaults is true', () => {
+    global.args = { 'insert-defaults': true };
+
+    const audioParams = addPath({
+      codec: 'AAC',
+      codecOptions: {
+        profile: 'auto'
+      }
+    }, []);
+
+    expect(convertAacProfile(audioParams)).toBe('LC');
+    expect(global.messages[0].level).toBe('WARN');
+    expect(global.messages[0].message).toMatch('The converter has applied the LC profile');
+  });
+
+  it('should not use default when channels is auto and insert-defaults is false', () => {
+    global.args = { 'insert-defaults': false };
+    const audioParams = addPath({
+      codec: 'AAC',
+      codecOptions: {
+        profile: 'auto'
+      }
+    }, []);
+
+    expect(convertAacProfile(audioParams)).toBeUndefined();
+    expect(global.messages[0].level).toBe('ERROR');
+    expect(global.messages[0].message).toMatch('no default value has been applied');
+  });
+
+  it('should use existing channels', () => {
+    let audioParams = {codec: 'AAC', codecOptions: {profile: 'AAC-LC'}};
+    expect(convertAacProfile(audioParams)).toBe('LC');
+
+    audioParams = {codec: 'AAC', codecOptions: {profile: 'HE-AAC'}};
+    expect(convertAacProfile(audioParams)).toBe('HEV1');
+
+    audioParams = {codec: 'AAC', codecOptions: {profile: 'HE-AACv2'}};
+    expect(convertAacProfile(audioParams)).toBe('HEV2');
   });
 });

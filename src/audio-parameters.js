@@ -101,7 +101,7 @@ function AudioParameters(audioParams) {
         bitrate: emcBitrateAllowed.has(emcCodec) ? parseInt(audioParams.bitRate) * 1000 : null,
         channels: convertChannels(audioParams),
         codingMode: makeCodingMode(audioParams),
-        codecProfile: aacProfileMap.get(audioParams.codecOptions?.profile),
+        codecProfile: convertAacProfile(audioParams),
         bitDepth: parseInt(audioParams.codecOptions?.bitDepth)
       }
     },
@@ -222,8 +222,44 @@ function makeCodingMode(audioParams) {
   }
 }
 
+/**
+ * Converts Elastic Transcoder AAC profile to MediaConvert AAC profile.
+ *
+ * @param {object} audioParams The Elastic Transcoder preset AudioParameters object.
+ * @return {string} The MediaConvert AAC profile.
+ */
+function convertAacProfile(audioParams) {
+  // Profile only applies to AAC
+  if (audioParams.codec !== 'AAC') {
+    return;
+  }
+
+  if (audioParams.codecOptions.profile === 'auto') {
+    if (args['insert-defaults']) {
+      addWarnMessage(
+        [...audioParams._path, 'codecOptions', 'profile'],
+        `AAC profile set to 'auto'. The converter has applied the LC profile.`
+      );
+      return 'LC';
+    }
+    else {
+      addErrorMessage(
+        [...audioParams._path, 'codecOptions', 'profile'],
+        `AAC profile set to 'auto'. ` +
+        `AAC profile is required, but no default value has been applied.`
+      );
+      return;
+    }
+  }
+  else {
+    // Elastic Transcoder audio channels settings is required; so it can't be null or undefined.
+    return aacProfileMap.get(audioParams.codecOptions.profile);
+  }
+}
+
 module.exports = {
   AudioParameters,
+  convertAacProfile,
   convertChannels,
   convertSampleRate,
   makeCodingMode,
