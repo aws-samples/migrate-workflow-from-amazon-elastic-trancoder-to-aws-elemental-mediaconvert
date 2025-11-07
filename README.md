@@ -5,6 +5,9 @@ Elemental MediaConvert preset and job settings.
 
 For more info see https://aws.amazon.com/blogs/media/migrating-workflows-from-amazon-elastic-transcoder-to-aws-elemental-mediaconvert/
 
+Note: the scripts described in this README calls Elastic Transcoder API to get the resources for
+conversion. The scripts will stop working after the service is discontinued.
+
 ## Prerequisites
 
 The followings are required to run the script:
